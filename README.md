@@ -2,7 +2,7 @@
 Scan Document with Android device using camera
 
 Camera UI:
-![Camera UI](https://user-images.githubusercontent.com/36228523/91321531-58642180-e7dc-11ea-8a21-423fe41ad497.png =960x540)
+![Camera UI](https://user-images.githubusercontent.com/36228523/91321531-58642180-e7dc-11ea-8a21-423fe41ad497.png|width=540px)
 
 Crop UI:
 ![Crop UI](https://user-images.githubusercontent.com/36228523/91321543-5c903f00-e7dc-11ea-884d-123e6a8405ce.png)
