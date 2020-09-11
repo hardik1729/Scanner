@@ -212,7 +212,7 @@ public class CameraPreview extends CameraActivity implements CvCameraViewListene
             if(findViewById(R.id.cross)==null)
                 parent.addView(crossButton);
             imageView.setImageBitmap(tempBmp);
-            Toast.makeText(getApplicationContext(),"hello"+v.getId()+"x"+imgName.size(),Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(),"hello"+v.getId()+"x"+imgName.size(),Toast.LENGTH_SHORT).show();
         }
     };
 
