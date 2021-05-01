@@ -32,6 +32,7 @@ import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Display;
+import android.view.DragEvent;
 import android.view.MenuItem;
 import android.view.SurfaceView;
 import android.view.View;
@@ -193,6 +194,34 @@ public class CameraPreview extends CameraActivity implements CvCameraViewListene
 
     private List<Integer> imgName=new ArrayList<>();
     private int index=0;
+    private  ImageButton.OnDragListener drag=new View.OnDragListener() {
+        @Override
+        public boolean onDrag(View v, DragEvent event) {
+//            Toast.makeText(getApplicationContext(),"hello"+v.getId()+"x"+imgName.size(),Toast.LENGTH_SHORT).show();
+//            Log.d("hola","hola");
+            final int action = event.getAction();
+            switch (action){
+                case DragEvent.ACTION_DRAG_LOCATION:
+                    Log.d("hola",v.getId()+"x"+event.getX()+"x"+event.getY()+"loc");
+                    break;
+                case DragEvent.ACTION_DROP:
+//                    Log.d("hola",v.getId()+"x"+event.getX()+"x"+event.getY());
+                    break;
+                default:
+                    break;
+            }
+
+            return true;
+        }
+    };
+    private ImageButton.OnLongClickListener longClick=new View.OnLongClickListener(){
+        @Override
+        public boolean onLongClick(View v){
+            View.DragShadowBuilder myShadow=new View.DragShadowBuilder(v);
+            v.startDrag(null,myShadow,null,0);
+            return true;
+        }
+    };
     private ImageButton.OnClickListener l=new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -212,7 +241,6 @@ public class CameraPreview extends CameraActivity implements CvCameraViewListene
             if(findViewById(R.id.cross)==null)
                 parent.addView(crossButton);
             imageView.setImageBitmap(tempBmp);
-//            Toast.makeText(getApplicationContext(),"hello"+v.getId()+"x"+imgName.size(),Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -241,6 +269,8 @@ public class CameraPreview extends CameraActivity implements CvCameraViewListene
             imgButton.setImageBitmap(mSmallBmp);
             imgButton.setId(index);
             imgButton.setOnClickListener(l);
+            imgButton.setOnLongClickListener(longClick);
+            imgButton.setOnDragListener(drag);
             if(loading && findViewById(R.id.cross)!=null){
                 imgButton.setAlpha((float)0.25);
             }

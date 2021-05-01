@@ -99,6 +99,48 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:progressBackgroundTint="@color/ic_black_and_white_background" />
+    <TextView
+        android:id="@+id/block_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fab_margin"
+        android:text="Block Size"
+        android:textStyle="bold"
+        android:textAllCaps="true"
+        android:background="@color/ic_black_and_white_background"
+        app:layout_constraintBottom_toTopOf="@id/seek_bar_block_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+    <SeekBar
+        android:id="@+id/seek_bar_block_size"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/fab_margin"
+        app:layout_constraintBottom_toTopOf="@id/C"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:progressBackgroundTint="@color/ic_black_and_white_background" />
+    <TextView
+        android:id="@+id/C"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fab_margin"
+        android:text="C"
+        android:textStyle="bold"
+        android:textAllCaps="true"
+        android:background="@color/ic_black_and_white_background"
+        app:layout_constraintBottom_toTopOf="@id/seek_bar_C"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+    <SeekBar
+        android:id="@+id/seek_bar_C"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/fab_margin"
+        app:layout_constraintBottom_toTopOf="@id/gamma"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:progressBackgroundTint="@color/ic_black_and_white_background" />
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/rotate"
         android:layout_width="wrap_content"

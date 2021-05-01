@@ -79,12 +79,15 @@ public class FirstFragment extends Fragment {
     private int mRight;
     private int mContrast=50;
     private int mBrightness=50;
+    private int mC=20;
+    private int mBlockSize=50;
     Bitmap bmp;
     private static final String path = Environment.getExternalStorageDirectory() + "/Scanner/";
     private String srcFolder = "pic/img/";
     private String dstFolder ="pic/ipm/";
     private boolean isResizedRotated=false;
     private boolean mDrawCB=false;
+    private boolean mGamma=false;
     private List<Bitmap> mBmpList=new ArrayList<>();
     private int idxUndoRedo=0;
     private int size=10;
@@ -95,6 +98,10 @@ public class FirstFragment extends Fragment {
     private SeekBar seekBar_brightness;
     private TextView contrast;
     private TextView brightness;
+    private SeekBar seekBar_C;
+    private SeekBar seekBar_block_size;
+    private TextView C;
+    private TextView block_size;
     private List<File> imgList=new ArrayList<>();
     private int idx=0;
 
@@ -176,6 +183,51 @@ public class FirstFragment extends Fragment {
         seekBar_contrast.setOnSeekBarChangeListener(contrast);
         seekBar_brightness.setOnSeekBarChangeListener(brightness);
 
+        seekBar_C=mView.findViewById(R.id.seek_bar_C);
+        C=mView.findViewById(R.id.C);
+        ((ViewGroup)mView).removeView(seekBar_C);
+        ((ViewGroup)mView).removeView(C);
+        block_size=mView.findViewById(R.id.block_size);
+        seekBar_block_size=mView.findViewById(R.id.seek_bar_block_size);
+        ((ViewGroup)mView).removeView(seekBar_block_size);
+        ((ViewGroup)mView).removeView(block_size);
+        final SeekBar.OnSeekBarChangeListener C=new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mC=progress;
+                ((ImageView)mView.findViewById(R.id.image_view)).setImageBitmap(gamma());
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        };
+        final SeekBar.OnSeekBarChangeListener block_size=new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mBlockSize=progress;
+                ((ImageView)mView.findViewById(R.id.image_view)).setImageBitmap(gamma());
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        };
+        seekBar_C.setOnSeekBarChangeListener(C);
+        seekBar_block_size.setOnSeekBarChangeListener(block_size);
+
         final CropView crop_view = (CropView) mView.findViewById(R.id.crop_view);
         crop_view.maxHeight=maxHeight;
         crop_view.maxWidth=maxWidth;
@@ -209,7 +261,7 @@ public class FirstFragment extends Fragment {
             }
             @Override
             public void onSwipeFinished(float xSwipe){
-                if (!crop_view.mDrawResize && !crop_view.mDrawCrop && !mDrawCB && abs(xSwipe) > 100) {
+                if (!crop_view.mDrawResize && !crop_view.mDrawCrop && !mDrawCB && !mGamma && abs(xSwipe) > 100) {
                     int idx_old=idx;
                     if (xSwipe > 0) {
                         if(idx+1==imgList.size())
@@ -299,6 +351,8 @@ public class FirstFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 falsifyExcept(view.getId(),crop_view,(ViewGroup) mView);
+                imageView.setImageBitmap(gamma());
+                if(!mGamma)
                 next(gamma());
                 showImage(crop_view,imageView,mBmpList.size()-1);
             }
@@ -398,6 +452,9 @@ public class FirstFragment extends Fragment {
             case R.id.CB:
                 toggle=mDrawCB;
                 break;
+            case R.id.gamma:
+                toggle=mGamma;
+                break;
             default:
                 toggle=false;
                 break;
@@ -409,10 +466,18 @@ public class FirstFragment extends Fragment {
             mView.removeView(contrast);
             mView.removeView(brightness);
         }
+        if(mView.findViewById(R.id.seek_bar_C)!=null && mView.findViewById(R.id.seek_bar_block_size)!=null
+                && mView.findViewById(R.id.C)!=null && mView.findViewById(R.id.block_size)!=null){
+            mView.removeView(seekBar_C);
+            mView.removeView(seekBar_block_size);
+            mView.removeView(C);
+            mView.removeView(block_size);
+        }
         crop_view.mDrawCrop=false;
         isResizedRotated=false;
         crop_view.mDrawResize=false;
         mDrawCB=false;
+        mGamma=false;
         switch (id){
             case R.id.crop:
                 crop_view.mDrawCrop=!toggle;
@@ -434,6 +499,19 @@ public class FirstFragment extends Fragment {
                     mView.addView(seekBar_brightness);
                     mView.addView(contrast);
                     mView.addView(brightness);
+                }
+                break;
+            case R.id.gamma:
+                mGamma=!toggle;
+                if(mGamma) {
+                    mC=20;
+                    seekBar_C.setProgress(mC);
+                    mBlockSize=50;
+                    seekBar_block_size.setProgress(mBlockSize);
+                    mView.addView(seekBar_C);
+                    mView.addView(seekBar_block_size);
+                    mView.addView(C);
+                    mView.addView(block_size);
                 }
                 break;
         }
@@ -533,6 +611,22 @@ public class FirstFragment extends Fragment {
         Imgproc.cvtColor(src,src,Imgproc.COLOR_BGR2HSV);
         List<Mat> planes= new ArrayList<>();
         Core.split(src,planes);
+        Imgproc.adaptiveThreshold(planes.get(2),planes.get(2),255,Imgproc.ADAPTIVE_THRESH_MEAN_C,Imgproc.THRESH_BINARY,2*(mBlockSize+1)+1,mC);
+        Core.merge(planes,src);
+
+        Mat dst = new Mat(src.rows(), src.cols(), src.type());
+        Imgproc.cvtColor(src, dst, Imgproc.COLOR_HSV2BGR);
+        Bitmap tempBmp = Bitmap.createBitmap(dst.cols(), dst.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(dst, tempBmp);
+        return tempBmp;
+    }
+
+    /*public Bitmap gamma(){
+        Mat src = new Mat(mBmpList.get(mBmpList.size()-1).getHeight(), mBmpList.get(mBmpList.size()-1).getWidth(), CvType.CV_8U);
+        Utils.bitmapToMat(mBmpList.get(mBmpList.size()-1), src);
+        Imgproc.cvtColor(src,src,Imgproc.COLOR_BGR2HSV);
+        List<Mat> planes= new ArrayList<>();
+        Core.split(src,planes);
         planes.get(2).convertTo(planes.get(2),CvType.CV_32F);
 
         double mean = Core.sumElems(planes.get(2)).val[0] / (planes.get(2).rows() * planes.get(2).cols());
@@ -580,7 +674,7 @@ public class FirstFragment extends Fragment {
         Bitmap tempBmp = Bitmap.createBitmap(dst.cols(), dst.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(dst, tempBmp);
         return tempBmp;
-    }
+    }*/
 
 
     /*
